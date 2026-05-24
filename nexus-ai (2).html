@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS AI — Kelajak Aqli</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --bg2: #080d1a;
+    --bg3: #0d1525;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --text: #e8eaf6;
+    --muted: #6b7ca4;
+    --border: rgba(0,212,255,0.15);
+    --glow: 0 0 30px rgba(0,212,255,0.2);
+    --card: rgba(8,13,26,0.8);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated starfield */
+  .starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d, 3s) ease-in-out infinite var(--delay, 0s);
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0.1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.3); }
+  }
+
+  /* Grid lines bg */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 { width:400px; height:400px; background:rgba(124,58,237,0.12); top:-100px; right:-100px; }
+  .orb2 { width:500px; height:500px; background:rgba(0,212,255,0.07); bottom:-150px; left:-150px; }
+  .orb3 { width:300px; height:300px; background:rgba(245,158,11,0.06); top:50%; left:50%; transform:translate(-50%,-50%); }
+
+  /* LAYOUT */
+  .wrapper { position: relative; z-index: 1; }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 4rem;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,8,16,0.85);
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--accent); }
+  .logo sub { font-size: 0.55rem; font-weight: 400; color: var(--muted); letter-spacing: 0.2em; vertical-align: middle; margin-left: 4px; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; letter-spacing: 0.05em; transition: color 0.3s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.5rem 1.5rem;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.05em;
+    transition: all 0.3s;
+  }
+  .nav-cta:hover { background: var(--accent); color: var(--bg); box-shadow: var(--glow); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 0.4rem 1.2rem;
+    border-radius: 30px;
+    font-size: 0.78rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s ease both;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+  .hero-title .line2 { color: var(--accent); }
+  .hero-title .line3 {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+    font-weight: 300;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.9rem 2.5rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.3s;
+    box-shadow: 0 0 30px rgba(0,212,255,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(0,212,255,0.5); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 0.9rem 2.5rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.3s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Floating stats */
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 5rem;
+    animation: fadeUp 0.8s ease 0.4s both;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-label { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(30px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  /* ── CHAT SECTION ── */
+  .section { padding: 6rem 4rem; max-width: 1200px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    font-family: 'Space Mono', monospace;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+  }
+  .section-sub { color: var(--muted); font-size: 1.05rem; max-width: 500px; line-height: 1.7; margin-bottom: 3rem; font-weight: 300; }
+
+  /* Chat UI */
+  .chat-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  .chat-window {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+  }
+  .chat-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ai-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+  }
+  .ai-name { font-weight: 600; font-size: 0.9rem; }
+  .ai-status { font-size: 0.72rem; color: #4ade80; margin-top: 2px; }
+  .chat-status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #4ade80;
+    margin-left: auto;
+    animation: pulse 2s ease infinite;
+  }
+  .chat-messages { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; min-height: 350px; }
+  .msg { display: flex; gap: 10px; animation: fadeUp 0.5s ease both; }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .msg-avatar.ai { background: linear-gradient(135deg, var(--accent2), var(--accent)); }
+  .msg-avatar.user-av { background: linear-gradient(135deg, var(--accent3), #ef4444); }
+  .msg-bubble {
+    max-width: 85%;
+    padding: 0.8rem 1.1rem;
+    border-radius: 14px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+  .msg.ai .msg-bubble {
+    background: rgba(0,212,255,0.07);
+    border: 1px solid rgba(0,212,255,0.1);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user .msg-bubble {
+    background: rgba(124,58,237,0.2);
+    border: 1px solid rgba(124,58,237,0.2);
+    border-bottom-right-radius: 4px;
+    text-align: right;
+  }
+  .msg-time { font-size: 0.65rem; color: var(--muted); margin-top: 4px; font-family: 'Space Mono', monospace; }
+  .typing { display: flex; gap: 4px; align-items: center; padding: 0.8rem 1.1rem; }
+  .typing-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: typingPulse 1.2s ease infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingPulse { 0%,100%{opacity:0.3;transform:translateY(0)} 50%{opacity:1;transform:translateY(-4px)} }
+
+  .chat-input-area {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  #chatInput {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 25px;
+    padding: 0.6rem 1.2rem;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  #chatInput:focus { border-color: var(--accent); }
+  #chatInput::placeholder { color: var(--muted); }
+  .send-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+  .send-btn:hover { box-shadow: var(--glow); transform: scale(1.1); }
+  .send-btn svg { width: 16px; height: 16px; fill: var(--bg); }
+
+  /* Chat right panel */
+  .chat-info { display: flex; flex-direction: column; gap: 1rem; }
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(20px);
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .info-card:hover { border-color: rgba(0,212,255,0.3); transform: translateY(-2px); }
+  .info-card-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .icon-blue { background: rgba(0,212,255,0.1); }
+  .icon-purple { background: rgba(124,58,237,0.15); }
+  .icon-amber { background: rgba(245,158,11,0.1); }
+  .info-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .info-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    transition: all 0.4s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,212,255,0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-card:hover { border-color: rgba(0,212,255,0.3); transform: translateY(-4px); }
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+  .feature-title { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.7rem; }
+  .feature-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+  .feature-tag {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.25rem 0.8rem;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 20px;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* ── DEMO SECTION ── */
+  .demo-section {
+    padding: 6rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .demo-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 0.4rem;
+    width: fit-content;
+  }
+  .demo-tab {
+    padding: 0.5rem 1.4rem;
+    border-radius: 50px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.3s;
+  }
+  .demo-tab.active { background: var(--accent); color: var(--bg); font-weight: 600; }
+  .demo-panel { display: none; }
+  .demo-panel.active { display: block; animation: fadeUp 0.4s ease; }
+
+  /* Code terminal */
+  .terminal {
+    background: #010408;
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .terminal-bar {
+    padding: 0.8rem 1.2rem;
+    border-bottom: 1px solid rgba(0,212,255,0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,255,0.04);
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .td-r { background: #ff5f57; }
+  .td-y { background: #febc2e; }
+  .td-g { background: #28c840; }
+  .t-title { font-size: 0.75rem; color: var(--muted); margin-left: auto; font-family: 'Space Mono', monospace; }
+  .terminal-code {
+    padding: 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+  }
+  .t-comment { color: #4a5568; }
+  .t-keyword { color: #7c3aed; }
+  .t-string { color: #4ade80; }
+  .t-func { color: #00d4ff; }
+  .t-num { color: var(--accent3); }
+  .t-var { color: #f472b6; }
+
+  /* Result display */
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    backdrop-filter: blur(20px);
+  }
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .result-badge {
+    padding: 0.2rem 0.7rem;
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 20px;
+    font-size: 0.7rem;
+    color: #4ade80;
+    font-family: 'Space Mono', monospace;
+  }
+  .result-title { font-weight: 600; font-size: 0.95rem; }
+  .confidence-bar { margin-top: 1rem; }
+  .conf-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
+  .conf-track {
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .conf-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    transition: width 1s ease;
+  }
+
+  /* Image analysis demo */
+  .img-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .img-placeholder {
+    aspect-ratio: 4/3;
+    border-radius: 16px;
+    border: 2px dashed rgba(0,212,255,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .img-placeholder:hover { border-color: var(--accent); background: rgba(0,212,255,0.03); }
+  .upload-icon { font-size: 2.5rem; opacity: 0.4; }
+
+  /* Analysis tags */
+  .analysis-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  .a-tag {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-family: 'Space Mono', monospace;
+    animation: fadeUp 0.4s ease both;
+  }
+  .a-tag.blue { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); color: var(--accent); }
+  .a-tag.purple { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2); color: #a78bfa; }
+  .a-tag.green { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; }
+
+  /* ── PRICING ── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  .pricing-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    backdrop-filter: blur(20px);
+    transition: all 0.4s;
+    position: relative;
+  }
+  .pricing-card.featured {
+    border-color: var(--accent);
+    box-shadow: 0 0 40px rgba(0,212,255,0.1), inset 0 0 60px rgba(0,212,255,0.03);
+  }
+  .featured-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--bg);
+    padding: 0.25rem 1.2rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .plan-name { font-size: 0.75rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; font-family: 'Space Mono', monospace; }
+  .plan-price {
+    font-family: 'Syne', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0.8rem 0 0.3rem;
+    line-height: 1;
+  }
+  .plan-price sup { font-size: 1.2rem; vertical-align: super; }
+  .plan-price sub { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
+  .plan-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 2rem; }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 2rem; }
+  .plan-features li {
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(232,234,246,0.8);
+  }
+  .plan-features li::before {
+    content: '✓';
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    display: inline-flex;
+  }
+  .plan-features li.na { color: var(--muted); }
+  .plan-features li.na::before { content: '×'; background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); color: var(--muted); }
+  .plan-btn {
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .pricing-card.featured .plan-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 600;
+    box-shadow: 0 0 20px rgba(0,212,255,0.3);
+  }
+  .plan-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .pricing-card.featured .plan-btn:hover { box-shadow: 0 0 40px rgba(0,212,255,0.5); }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials {
+    padding: 6rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .test-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  .test-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s;
+  }
+  .test-card:hover { border-color: rgba(124,58,237,0.3); transform: translateY(-3px); }
+  .stars { color: var(--accent3); font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 2px; }
+  .test-text { font-size: 0.88rem; color: rgba(232,234,246,0.8); line-height: 1.7; margin-bottom: 1.5rem; }
+  .test-author { display: flex; align-items: center; gap: 10px; }
+  .test-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .test-name { font-weight: 600; font-size: 0.88rem; }
+  .test-role { font-size: 0.72rem; color: var(--muted); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 4rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+  }
+  .footer-brand .logo { font-size: 1.3rem; margin-bottom: 1rem; display: block; }
+  .footer-tagline { font-size: 0.85rem; color: var(--muted); line-height: 1.7; max-width: 280px; }
+  .footer-col h5 { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.2rem; font-family: 'Space Mono', monospace; }
+  .footer-col a { display: block; font-size: 0.85rem; color: rgba(232,234,246,0.6); text-decoration: none; margin-bottom: 0.7rem; transition: color 0.3s; }
+  .footer-col a:hover { color: var(--accent); }
+  .footer-bottom {
+    padding: 1.5rem 4rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* Scan line effect */
+  .scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.3;
+    animation: scan 4s linear infinite;
+    z-index: 999;
+    pointer-events: none;
+  }
+  @keyframes scan {
+    0% { top: 0; }
+    100% { top: 100vh; }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .section, .demo-section, .testimonials { padding: 4rem 1.5rem; }
+    .features-grid, .pricing-grid, .test-grid { grid-template-columns: 1fr; }
+    .chat-container, .img-demo { grid-template-columns: 1fr; }
+    footer { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
+    .footer-bottom { flex-direction: column; gap: 1rem; padding: 1.5rem; }
+    .hero-stats { gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<!-- Starfield -->
+<div class="starfield" id="starfield"></div>
+<div class="grid-bg"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="wrapper">
+
+<!-- ── NAVIGATION ── -->
+<nav>
+  <div class="logo">NEXUS<span>AI</span><sub>v2.0</sub></div>
+  <ul class="nav-links">
+    <li><a href="#features">Imkoniyatlar</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#pricing">Narxlar</a></li>
+    <li><a href="#about">Haqida</a></li>
+  </ul>
+  <button class="nav-cta">Bepul boshlash →</button>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="badge-dot"></div>
+    Yangi: GPT-5 Turbo integratsiyasi mavjud
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line1">Kelajakning</span><br>
+    <span class="line2">Sun'iy Aqli</span><br>
+    <span class="line3">Sizning qo'lingizda</span>
+  </h1>
+
+  <p class="hero-sub">
+    NEXUS AI — eng ilg'or til modellari, kompyuter ko'rishi va real-vaqt ma'lumot 
+    tahlilini birlashtirgan super intellekt platformasi. 
+    Kelajakni bugun his eting.
+  </p>
+
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('chatSection').scrollIntoView({behavior:'smooth'})">
+      AI bilan gaplashing
+    </button>
+    <button class="btn-secondary">
+      Demoni ko'rish ▷
+    </button>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num" id="counter1">0</div>
+      <div class="stat-label">Foydalanuvchilar</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="counter2">0</div>
+      <div class="stat-label">So'rovlar/kun</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="counter3">0</div>
+      <div class="stat-label">Modellar</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="counter4">0%</div>
+      <div class="stat-label">Aniqlik</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CHAT SECTION ── -->
+<section class="section" id="chatSection">
+  <div class="section-label">// real-time ai chat</div>
+  <h2 class="section-title">Nexus bilan suhbat</h2>
+  <p class="section-sub">Har qanday savolingizni so'rang. Matematika, kod, ijod, tahlil — Nexus hamma narsani biladi.</p>
+
+  <div class="chat-container">
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="ai-avatar">NX</div>
+        <div>
+          <div class="ai-name">Nexus AI</div>
+          <div class="ai-status">● Onlayn — tayyor</div>
+        </div>
+        <div class="chat-status-dot"></div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg ai" style="animation-delay:0.1s">
+          <div class="msg-avatar ai"></div>
+          <div>
+            <div class="msg-bubble">Salom! Men Nexus AI. Bugun sizga qanday yordam bera olaman? Kod yozish, tarjima, tahlil yoki ijodiy ish — hamma narsada qo'llab-quvvatlashga tayyorman! 🚀</div>
+            <div class="msg-time">00:01</div>
+          </div>
+        </div>
+        <div class="msg user" style="animation-delay:0.2s">
+          <div class="msg-avatar user-av"></div>
+          <div>
+            <div class="msg-bubble">Python'da Fibonacci ketma-ketligini yozib ber</div>
+            <div class="msg-time">00:02</div>
+          </div>
+        </div>
+        <div class="msg ai" style="animation-delay:0.3s">
+          <div class="msg-avatar ai"></div>
+          <div>
+            <div class="msg-bubble" style="font-family:'Space Mono',monospace;font-size:0.78rem;">
+              <span style="color:var(--muted)"># Rekursiv usul</span><br>
+              <span style="color:#7c3aed">def</span> <span style="color:var(--accent)">fibonacci</span>(n):<br>
+              &nbsp;&nbsp;<span style="color:#7c3aed">if</span> n &lt;= 1:<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#7c3aed">return</span> n<br>
+              &nbsp;&nbsp;<span style="color:#7c3aed">return</span> fibonacci(n-1) + fibonacci(n-2)<br><br>
+              <span style="color:var(--muted)"># Natija: 0,1,1,2,3,5,8,13...</span>
+            </div>
+            <div class="msg-time">00:02</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="Savolingizni yozing..." />
+        <button class="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-info">
+      <div class="info-card">
+        <div class="info-card-icon icon-blue">🧠</div>
+        <h4>Super intellekt</h4>
+        <p>GPT-5 Turbo, Claude 3.7, Gemini Ultra — eng kuchli modellarni bir joyda ishlatamiz</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon icon-purple">⚡</div>
+        <h4>Ultra tezlik</h4>
+        <p>0.3 soniyadan kam javob vaqti. Real-vaqt streaming va parallel qayta ishlash</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon icon-amber">🔒</div>
+        <h4>To'liq maxfiylik</h4>
+        <p>256-bit AES shifrlash. Ma'lumotlaringiz saqlanmaydi, hech kim ko'rmaydi</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="section" id="features">
+  <div class="section-label">// core capabilities</div>
+  <h2 class="section-title">Nimalar qila oladi?</h2>
+  <p class="section-sub">Nexus AI — ko'p qirrali super intellekt. Har qanday vazifani bajaradi.</p>
+
+  <div class="features-grid">
+    <div class="feature-card" onclick="this.style.borderColor='var(--accent)'">
+      <span class="feature-icon">💬</span>
+      <div class="feature-title">Til tahlili</div>
+      <div class="feature-desc">100+ tilda suhbat, tarjima, yozish va tahlil. O'zbek tilida mukammal ishlaydi.</div>
+      <div class="feature-tag">NLP</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">👁️</span>
+      <div class="feature-title">Kompyuter ko'rishi</div>
+      <div class="feature-desc">Rasm va video tahlil, ob'ektlarni aniqlash, tibbiy tasvirlarni o'qish.</div>
+      <div class="feature-tag">VISION</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">💻</span>
+      <div class="feature-title">Kod generatsiyasi</div>
+      <div class="feature-desc">50+ dasturlash tili, avtomatik debugging, kod optimallashtirish va hujjatlash.</div>
+      <div class="feature-tag">CODE-GEN</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📊</span>
+      <div class="feature-title">Ma'lumot tahlili</div>
+      <div class="feature-desc">CSV, Excel, JSON, SQL — har qanday ma'lumot bazasini tahlil qilish va vizualizatsiya.</div>
+      <div class="feature-tag">ANALYTICS</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🎨</span>
+      <div class="feature-title">Ijodiy yozish</div>
+      <div class="feature-desc">Qo'shiq, she'r, hikoya, marketing matnlar, texnik hujjatlar yaratish.</div>
+      <div class="feature-tag">CREATIVE</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔬</span>
+      <div class="feature-title">Ilmiy tadqiqot</div>
+      <div class="feature-desc">Maqolalarni tahlil qilish, gipotezalarni tekshirish, laboratoriya ma'lumotlarini qayta ishlash.</div>
+      <div class="feature-tag">RESEARCH</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DEMO SECTION ── -->
+<section class="demo-section" id="demo">
+  <div class="section-label">// live demonstration</div>
+  <h2 class="section-title">Jonli demo</h2>
+  <p class="section-sub">Nexus AI qanday ishlashini ko'ring</p>
+
+  <div class="demo-tabs">
+    <button class="demo-tab active" onclick="switchTab('code')">Kod tahlili</button>
+    <button class="demo-tab" onclick="switchTab('image')">Rasm tahlili</button>
+    <button class="demo-tab" onclick="switchTab('data')">Ma'lumot tahlili</button>
+  </div>
+
+  <!-- CODE PANEL -->
+  <div class="demo-panel active" id="tab-code">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="t-dot td-r"></div>
+        <div class="t-dot td-y"></div>
+        <div class="t-dot td-g"></div>
+        <div class="t-title">nexus_analysis.py</div>
+      </div>
+      <div class="terminal-code">
+        <span class="t-comment"># Nexus AI — Kod tahlili namunasi</span><br>
+        <span class="t-comment">─────────────────────────────────</span><br><br>
+        <span class="t-keyword">import</span> <span class="t-var">nexus_ai</span> <span class="t-keyword">as</span> <span class="t-var">nx</span><br><br>
+        <span class="t-comment"># Model yaratish</span><br>
+        <span class="t-var">agent</span> = <span class="t-func">nx.create_agent</span>(<br>
+        &nbsp;&nbsp;<span class="t-var">model</span>=<span class="t-string">"nexus-ultra-v2"</span>,<br>
+        &nbsp;&nbsp;<span class="t-var">temperature</span>=<span class="t-num">0.7</span>,<br>
+        &nbsp;&nbsp;<span class="t-var">language</span>=<span class="t-string">"uz"</span><br>
+        )<br><br>
+        <span class="t-comment"># So'rov yuborish</span><br>
+        <span class="t-var">response</span> = <span class="t-var">agent</span>.<span class="t-func">analyze</span>(<br>
+        &nbsp;&nbsp;<span class="t-var">prompt</span>=<span class="t-string">"Bu kodni optimallashtir"</span>,<br>
+        &nbsp;&nbsp;<span class="t-var">context</span>=<span class="t-var">my_code</span><br>
+        )<br><br>
+        <span class="t-func">print</span>(<span class="t-var">response</span>.<span class="t-var">output</span>)<br>
+        <span class="t-comment"># ✓ Yangilangan kod tayyor</span>
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-header">
+        <div class="result-badge">✓ TAHLIL TUGADI</div>
+        <div class="result-title">Kod optimallashtirish natijalari</div>
+      </div>
+      <div class="confidence-bar">
+        <div class="conf-label"><span>Tezlik yaxshilanishi</span><span>+340%</span></div>
+        <div class="conf-track"><div class="conf-fill" style="width:85%"></div></div>
+        <div class="conf-label"><span>Xotira optimallashtirish</span><span>-60%</span></div>
+        <div class="conf-track"><div class="conf-fill" style="width:70%; background: linear-gradient(90deg, var(--accent3), #ef4444)"></div></div>
+        <div class="conf-label"><span>Kod sifati (100 dan)</span><span>94/100</span></div>
+        <div class="conf-track"><div class="conf-fill" style="width:94%; background: linear-gradient(90deg, #4ade80, var(--accent))"></div></div>
+      </div>
+      <div class="analysis-tags" style="margin-top:1.2rem">
+        <div class="a-tag blue">O(n) → O(log n)</div>
+        <div class="a-tag green">3 xato tuzatildi</div>
+        <div class="a-tag purple">2 funksiya birlashtirildi</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE PANEL -->
+  <div class="demo-panel" id="tab-image">
+    <div class="img-demo">
+      <div class="img-placeholder" onclick="triggerImgDemo()">
+        <div class="upload-icon">📸</div>
+        <div style="font-size:0.85rem;color:var(--muted)">Rasm yuklang yoki bosing</div>
+        <div class="a-tag blue" style="font-size:0.7rem">JPG, PNG, WebP</div>
+      </div>
+      <div>
+        <div class="result-card" id="imgResult" style="opacity:0;transition:opacity 0.5s">
+          <div class="result-header">
+            <div class="result-badge">✓ ANIQLANDI</div>
+            <div class="result-title">Rasm tahlili</div>
+          </div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;line-height:1.7">
+            Shahar ko'chasi, kun bo'yi. 3 kishi, 2 avtomobil, 1 itcha. 
+            Havo: quyoshli, taxminan 24°C.
+          </div>
+          <div class="confidence-bar">
+            <div class="conf-label"><span>Aniqlik</span><span>97.3%</span></div>
+            <div class="conf-track"><div class="conf-fill" style="width:97%"></div></div>
+          </div>
+          <div class="analysis-tags" style="margin-top:1rem">
+            <div class="a-tag blue">Ko'cha sahna</div>
+            <div class="a-tag green">Inson × 3</div>
+            <div class="a-tag purple">Transport × 2</div>
+            <div class="a-tag blue" style="animation-delay:0.3s">Hayvon × 1</div>
+            <div class="a-tag green" style="animation-delay:0.4s">Kun vaqti: Tushdan keyin</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA PANEL -->
+  <div class="demo-panel" id="tab-data">
+    <div class="result-card" style="margin-top:0">
+      <div style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--muted);margin-bottom:1.5rem">
+        <span style="color:var(--accent)">NEXUS</span> &gt; Savdo ma'lumotlarini tahlil qil...
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
+        <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1rem;text-align:center">
+          <div style="font-size:1.5rem;font-weight:700;font-family:'Syne',sans-serif;color:var(--accent)">$2.4M</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Umumiy daromad</div>
+        </div>
+        <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.15);border-radius:12px;padding:1rem;text-align:center">
+          <div style="font-size:1.5rem;font-weight:700;font-family:'Syne',sans-serif;color:#4ade80">+34%</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">O'sish sur'ati</div>
+        </div>
+        <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:1rem;text-align:center">
+          <div style="font-size:1.5rem;font-weight:700;font-family:'Syne',sans-serif;color:var(--accent3)">12.4K</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Mijozlar</div>
+        </div>
+        <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:12px;padding:1rem;text-align:center">
+          <div style="font-size:1.5rem;font-weight:700;font-family:'Syne',sans-serif;color:#a78bfa">94%</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Qoniqish</div>
+        </div>
+      </div>
+
+      <!-- Mini bar chart -->
+      <div style="display:flex;align-items:flex-end;gap:8px;height:100px;padding:0 0.5rem">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+          <div style="width:100%;background:linear-gradient(to top,var(--accent2),var(--accent));border-radius:4px 4px 0 0;height:40%"></div>
+          <div style="font-size:0.6rem;color:var(--muted)">Yan</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+          <div style="width:100%;background:linear-gradient(to top,var(--accent2),var(--accent));border-radius:4px 4px 0 0;height:55%"></div>
+          <div style="font-size:0.6rem;color:var(--muted)">Fev</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+          <div style="width:100%;background:linear-gradient(to top,var(--accent2),var(--accent));border-radius:4px 4px 0 0;height:70%"></div>
+          <div style="font-size:0.6rem;color:var(--muted)">Mar</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+          <div style="width:100%;background:linear-gradient(to top,var(--accent2),var(--accent));border-radius:4px 4px 0 0;height:60%"></div>
+          <div style="font-size:0.6rem;color:var(--muted)">Apr</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+          <div style="width:100%;background:linear-gradient(to top,var(--accent2),var(--accent));border-radius:4px 4px 0 0;height:80%"></div>
+          <div style="font-size:0.6rem;color:var(--muted)">May</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+          <div style="width:100%;background:linear-gradient(to top,var(--accent3),#ef4444);border-radius:4px 4px 0 0;height:100%"></div>
+          <div style="font-size:0.6rem;color:var(--accent)">Iyn</div>
+        </div>
+      </div>
+      <div style="margin-top:1rem;font-size:0.8rem;color:var(--muted);line-height:1.7">
+        <span style="color:#4ade80">↑</span> Iyun eng yuqori ko'rsatkich. AI prognoz: keyingi 3 oy +22% o'sish kutilmoqda.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section class="section" id="pricing" style="max-width:1200px;margin:0 auto">
+  <div class="section-label">// simple pricing</div>
+  <h2 class="section-title">Narx rejalar</h2>
+  <p class="section-sub">Har qanday ehtiyoj uchun mos tarif. Kredit kartasi shart emas.</p>
+
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price"><sup>$</sup>0<sub>/oy</sub></div>
+      <div class="plan-desc">Boshlash uchun ideal</div>
+      <ul class="plan-features">
+        <li>100 so'rov/kun</li>
+        <li>GPT-4 modeli</li>
+        <li>Asosiy kod tahlili</li>
+        <li>O'zbek tili qo'llab-quvvatlanadi</li>
+        <li class="na">Rasm tahlili</li>
+        <li class="na">API kirish</li>
+      </ul>
+      <button class="plan-btn">Bepul boshlash</button>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="featured-badge">ENG MASHHUR</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price"><sup>$</sup>29<sub>/oy</sub></div>
+      <div class="plan-desc">Professional foydalanuvchilar uchun</div>
+      <ul class="plan-features">
+        <li>Cheksiz so'rovlar</li>
+        <li>GPT-5 + Claude Ultra</li>
+        <li>Kengaytirilgan kod tahlili</li>
+        <li>Barcha tillar</li>
+        <li>Rasm va video tahlili</li>
+        <li>API kirish (10K req/oy)</li>
+      </ul>
+      <button class="plan-btn">Pro boshlash</button>
+    </div>
+
+    <div class="pricing-card">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price"><sup>$</sup>99<sub>/oy</sub></div>
+      <div class="plan-desc">Katta jamoalar uchun</div>
+      <ul class="plan-features">
+        <li>Cheksiz hamma narsa</li>
+        <li>Barcha AI modellari</li>
+        <li>Custom model o'qitish</li>
+        <li>Dedicated server</li>
+        <li>SLA 99.99% uptime</li>
+        <li>24/7 texnik yordam</li>
+      </ul>
+      <button class="plan-btn">Bog'lanish</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section class="testimonials">
+  <div class="section-label">// user reviews</div>
+  <h2 class="section-title">Foydalanuvchilar aytadi</h2>
+  <p class="section-sub">Dunyo bo'ylab 500,000+ foydalanuvchi ishonadi</p>
+
+  <div class="test-grid">
+    <div class="test-card">
+      <div class="stars">★★★★★</div>
+      <div class="test-text">"Nexus AI mening ish samaradorligimni 3 barobarga oshirdi. Kod yozish, hujjat tayyorlash — hammasi bir joyda. Ajoyib platforma!"</div>
+      <div class="test-author">
+        <div class="test-avatar" style="background:linear-gradient(135deg,#7c3aed,#00d4ff)">JA</div>
+        <div>
+          <div class="test-name">Jasur Alimov</div>
+          <div class="test-role">Senior Developer, Uzum Bank</div>
+        </div>
+      </div>
+    </div>
+    <div class="test-card">
+      <div class="stars">★★★★★</div>
+      <div class="test-text">"Tibbiy tasvirlarni tahlil qilish uchun ishlataman. Aniqlik darajasi juda yuqori. O'zbek tilida mukammal javob beradi."</div>
+      <div class="test-author">
+        <div class="test-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">MN</div>
+        <div>
+          <div class="test-name">Malika Nazarova</div>
+          <div class="test-role">Radiolog, Toshkent Tibbiyot</div>
+        </div>
+      </div>
+    </div>
+    <div class="test-card">
+      <div class="stars">★★★★★</div>
+      <div class="test-text">"Marketing matnlari, ijtimoiy tarmoq postlari — Nexus bilan 10 daqiqada bir haftalik ish bajaraman. Tavsiya qilaman!"</div>
+      <div class="test-author">
+        <div class="test-avatar" style="background:linear-gradient(135deg,#4ade80,#00d4ff)">SK</div>
+        <div>
+          <div class="test-name">Shahlo Karimova</div>
+          <div class="test-role">Marketing Director, OKassa</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT / PROFILE ── -->
+<section style="padding:6rem 4rem;max-width:1200px;margin:0 auto" id="contact">
+  <div class="section-label">// loyiha muallifi</div>
+  <h2 class="section-title">Aloqa</h2>
+  <p class="section-sub">Savol, taklif yoki hamkorlik uchun bog'laning</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:2rem;align-items:start;margin-top:3rem">
+
+    <!-- Profile card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;backdrop-filter:blur(20px);text-align:center;position:relative;overflow:hidden">
+      <!-- Glow ring behind avatar -->
+      <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,0.12),transparent 70%);pointer-events:none"></div>
+
+      <!-- Avatar initials -->
+      <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#00d4ff);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin:0 auto 1.2rem;box-shadow:0 0 30px rgba(0,212,255,0.25);border:2px solid rgba(0,212,255,0.3)">ZN</div>
+
+      <h3 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:0.3rem">Zarina Nozirova</h3>
+      <div style="font-size:0.78rem;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:1.2rem">AI Developer & Creator</div>
+
+      <div style="display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.5rem">
+        <span style="padding:0.25rem 0.8rem;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.18);border-radius:20px;font-size:0.7rem;color:var(--accent);font-family:'Space Mono',monospace">AI</span>
+        <span style="padding:0.25rem 0.8rem;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);border-radius:20px;font-size:0.7rem;color:#a78bfa;font-family:'Space Mono',monospace">Python</span>
+        <span style="padding:0.25rem 0.8rem;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.18);border-radius:20px;font-size:0.7rem;color:#4ade80;font-family:'Space Mono',monospace">ML</span>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin-bottom:1.5rem"></div>
+      <div style="font-size:0.83rem;color:var(--muted);line-height:1.7">
+        Nexus AI loyihasining muallifi. Sun'iy intellekt va kelajak texnologiyalari bilan shug'ullanaman.
+      </div>
+    </div>
+
+    <!-- Contact links -->
+    <div style="display:flex;flex-direction:column;gap:1rem">
+
+      <!-- Gmail -->
+      <a href="mailto:zarinanozirova007@gmail.com" style="text-decoration:none;display:flex;align-items:center;gap:1.2rem;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.5rem 2rem;backdrop-filter:blur(20px);transition:all 0.3s;cursor:pointer"
+        onmouseover="this.style.borderColor='rgba(234,67,53,0.5)';this.style.transform='translateY(-3px)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+        <div style="width:48px;height:48px;border-radius:14px;background:rgba(234,67,53,0.1);border:1px solid rgba(234,67,53,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">✉️</div>
+        <div style="flex:1">
+          <div style="font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:0.3rem">Gmail</div>
+          <div style="font-size:0.95rem;color:var(--text);font-weight:500">zarinanozirova007@gmail.com</div>
+        </div>
+        <div style="font-size:0.75rem;color:rgba(234,67,53,0.7);font-family:'Space Mono',monospace">→</div>
+      </a>
+
+      <!-- Telegram -->
+      <a href="https://t.me/nozirova_zarina" target="_blank" style="text-decoration:none;display:flex;align-items:center;gap:1.2rem;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.5rem 2rem;backdrop-filter:blur(20px);transition:all 0.3s;cursor:pointer"
+        onmouseover="this.style.borderColor='rgba(0,136,204,0.5)';this.style.transform='translateY(-3px)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+        <div style="width:48px;height:48px;border-radius:14px;background:rgba(0,136,204,0.1);border:1px solid rgba(0,136,204,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">✈️</div>
+        <div style="flex:1">
+          <div style="font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:0.3rem">Telegram</div>
+          <div style="font-size:0.95rem;color:var(--text);font-weight:500">@nozirova_zarina</div>
+        </div>
+        <div style="font-size:0.75rem;color:rgba(0,136,204,0.7);font-family:'Space Mono',monospace">→</div>
+      </a>
+
+      <!-- Instagram -->
+      <a href="https://instagram.com/ai_nozi" target="_blank" style="text-decoration:none;display:flex;align-items:center;gap:1.2rem;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.5rem 2rem;backdrop-filter:blur(20px);transition:all 0.3s;cursor:pointer"
+        onmouseover="this.style.borderColor='rgba(225,48,108,0.5)';this.style.transform='translateY(-3px)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+        <div style="width:48px;height:48px;border-radius:14px;background:rgba(225,48,108,0.1);border:1px solid rgba(225,48,108,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">📸</div>
+        <div style="flex:1">
+          <div style="font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:0.3rem">Instagram</div>
+          <div style="font-size:0.95rem;color:var(--text);font-weight:500">@ai_nozi</div>
+        </div>
+        <div style="font-size:0.75rem;color:rgba(225,48,108,0.7);font-family:'Space Mono',monospace">→</div>
+      </a>
+
+      <!-- Quick message hint -->
+      <div style="background:rgba(0,212,255,0.04);border:1px dashed rgba(0,212,255,0.15);border-radius:14px;padding:1.2rem 1.5rem;font-size:0.82rem;color:var(--muted);line-height:1.7;text-align:center">
+        💡 Hamkorlik, savol yoki taklif uchun istalgan platforma orqali yozing — tez javob beraman!
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">
+    <span class="logo">NEXUS<span style="color:var(--accent)">AI</span></span>
+    <p class="footer-tagline">Kelajakning sun'iy aqli. Bugungi texnologiyalar bilan insoniyat imkoniyatlarini kengaytirmoqdamiz.</p>
+  </div>
+  <div class="footer-col">
+    <h5>Mahsulot</h5>
+    <a href="#">Xususiyatlar</a>
+    <a href="#">Narxlar</a>
+    <a href="#">API</a>
+    <a href="#">Integratsiyalar</a>
+  </div>
+  <div class="footer-col">
+    <h5>Kompaniya</h5>
+    <a href="#">Haqimizda</a>
+    <a href="#">Blog</a>
+    <a href="#">Karyera</a>
+    <a href="#">Aloqa</a>
+  </div>
+  <div class="footer-col">
+    <h5>Qo'llab-quvvatlash</h5>
+    <a href="#">Hujjatlar</a>
+    <a href="#">Tutorial</a>
+    <a href="#">Forum</a>
+    <a href="#">Status</a>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span>© 2025 NEXUS AI · Barcha huquqlar himoyalangan</span>
+  <span style="color:var(--accent)">v2.0.1 · Stable</span>
+</div>
+
+</div><!-- /wrapper -->
+
+<script>
+// ── Stars ──
+(function(){
+  const sf = document.getElementById('starfield');
+  for(let i=0;i<120;i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random()*2+0.5;
+    s.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      width:${size}px; height:${size}px;
+      --d:${2+Math.random()*4}s;
+      --delay:-${Math.random()*6}s;
+    `;
+    sf.appendChild(s);
+  }
+})();
+
+// ── Counters ──
+function animateCounter(el, target, suffix, duration) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    let display = Math.floor(start);
+    if(target >= 1000 && target < 1000000) display = (display/1000).toFixed(0)+'K';
+    else if(target >= 1000000) display = (display/1000000).toFixed(1)+'M';
+    el.textContent = display + suffix;
+    if(start >= target) clearInterval(timer);
+  }, 16);
+}
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    animateCounter(document.getElementById('counter1'), 500000, '+', 2000);
+    animateCounter(document.getElementById('counter2'), 2000000, '', 2000);
+    animateCounter(document.getElementById('counter3'), 24, '+', 1500);
+    animateCounter(document.getElementById('counter4'), 99, '%', 1500);
+  }, 500);
+});
+
+// ── Demo tabs ──
+function switchTab(name) {
+  document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── Image demo ──
+function triggerImgDemo() {
+  const r = document.getElementById('imgResult');
+  r.style.opacity = '1';
+  r.querySelector('.conf-fill').style.width = '97%';
+}
+
+// ── Chat (Real Anthropic API) ──
+const chatHistory = [];
+
+function getTime() {
+  const now = new Date();
+  return now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+}
+
+function appendMsg(role, text, time) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role === 'user' ? 'user' : 'ai');
+  div.innerHTML = role === 'user'
+    ? `<div class="msg-avatar user-av"></div><div><div class="msg-bubble">${text}</div><div class="msg-time">${time}</div></div>`
+    : `<div class="msg-avatar ai"></div><div><div class="msg-bubble" style="white-space:pre-wrap">${text}</div><div class="msg-time">${time}</div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ai'; div.id = 'typing-ind';
+  div.innerHTML = `<div class="msg-avatar ai"></div><div class="msg-bubble" style="background:rgba(0,212,255,0.05)"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  const time = getTime();
+  input.value = '';
+  input.disabled = true;
+  document.querySelector('.send-btn').disabled = true;
+  appendMsg('user', msg, time);
+  chatHistory.push({ role: 'user', content: msg });
+  showTyping();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: "Sen Nexus AI — aqlli va do'stona yordamchi. Foydalanuvchi o'zbek tilida yozsa o'zbek tilida, rus tilida yozsa rus tilida, ingliz tilida yozsa ingliz tilida javob ber. Har doim aniq, qisqa va foydali javob ber. Keraksiz so'z qo'shma.",
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    document.getElementById('typing-ind')?.remove();
+    const reply = data?.content?.[0]?.text || "Kechirasiz, xato yuz berdi.";
+    chatHistory.push({ role: 'assistant', content: reply });
+    appendMsg('ai', reply, getTime());
+  } catch(err) {
+    document.getElementById('typing-ind')?.remove();
+    appendMsg('ai', "Tarmoq xatosi. Qayta urinib ko'ring.", getTime());
+  }
+  input.disabled = false;
+  document.querySelector('.send-btn').disabled = false;
+  input.focus();
+}
+
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') sendMessage();
+});
+
+// ── Scroll animations ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.feature-card, .pricing-card, .test-card, .info-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease, border-color 0.3s';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
